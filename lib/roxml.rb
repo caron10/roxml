@@ -446,9 +446,10 @@ module ROXML # :nodoc:
         syms.map do |sym|
           Definition.new(sym, opts, &block).tap do |attr|
             if roxml_attrs.map(&:accessor).include? attr.accessor
-              raise "Accessor #{attr.accessor} is already defined as XML accessor in class #{self.name}"
+              #raise "Accessor #{attr.accessor} is already defined as XML accessor in class #{self.name}"
+            else
+              @roxml_attrs << attr
             end
-            @roxml_attrs << attr
           end
         end
       end
@@ -479,9 +480,6 @@ module ROXML # :nodoc:
     private
       def add_reader(attr)
         define_method(attr.accessor) do
-          if instance_variable_get(attr.instance_variable_name).nil?
-            instance_variable_set(attr.instance_variable_name, attr.default)
-          end
           instance_variable_get(attr.instance_variable_name)
         end
       end
@@ -546,18 +544,34 @@ module ROXML # :nodoc:
       #
       def from_xml(data, *initialization_args)
         xml = XML::Node.from(data)
-
-        new(*initialization_args).tap do |inst|
-          inst.roxml_references = roxml_attrs.map {|attr| attr.to_ref(inst) }
-
-          inst.roxml_references.each do |ref|
-            value = ref.value_in(xml)
-            inst.respond_to?(ref.opts.setter) \
-              ? inst.send(ref.opts.setter, value) \
-              : inst.instance_variable_set(ref.opts.instance_variable_name, value)
-          end
-          inst.send(:after_parse) if inst.respond_to?(:after_parse, true)
+        #puts "step 1."
+        
+        attributes = {}
+        roxml_references = roxml_attrs.map {|attr| attr.to_ref(self) }
+        roxml_references.each do |ref|
+          value = ref.value_in(xml)
+          #puts "value:#{value}"
+          attributes[ref.opts.instance_variable_name.to_s.gsub("@","").to_sym] = value
+          # inst.respond_to?(ref.opts.setter) \
+            # ? inst.send(ref.opts.setter, value) \
+            # : inst.instance_variable_set(ref.opts.instance_variable_name, value)
         end
+        
+        obj = self.new(attributes)
+        
+
+        # new(*initialization_args).tap do |inst|
+          # inst.roxml_references = roxml_attrs.map {|attr| attr.to_ref(inst) }
+
+          # inst.roxml_references.each do |ref|
+            # value = ref.value_in(xml)
+            # puts "value:#{value}"
+            # inst.respond_to?(ref.opts.setter) \
+              # ? inst.send(ref.opts.setter, value) \
+              # : inst.instance_variable_set(ref.opts.instance_variable_name, value)
+          # end
+          # inst.send(:after_parse) if inst.respond_to?(:after_parse, true)
+        # end
       rescue ArgumentError => e
         raise e, e.message + " for class #{self}"
       end

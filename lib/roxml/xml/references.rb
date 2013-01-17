@@ -12,6 +12,13 @@ module ROXML
     def initialize(opts, instance)
       @opts = opts
       @instance = instance
+      if (@instance.class.name == "Class")
+        @instance_class = @instance
+      else
+        @instance_class = @instance.class
+      end
+      #puts "instance: #{@instance}"
+      #puts "instance_class: #{@instance_class}"
     end
 
     def blocks
@@ -41,7 +48,7 @@ module ROXML
 
   private
     def conventionize(what)
-      convention ||= @instance.class.respond_to?(:roxml_naming_convention) && @instance.class.roxml_naming_convention
+      convention ||= @instance_class.respond_to?(:roxml_naming_convention) && @instance_class.roxml_naming_convention
       if !what.blank? && convention.respond_to?(:call)
         URI.unescape(convention.call(URI.escape(what, /\/|::/)))
       else
@@ -51,7 +58,7 @@ module ROXML
 
     def namespacify(what)
       if what.to_s.present? && !what.to_s.include?(':') && opts.namespace != false
-        [opts.namespace, @instance.class.roxml_namespace, @default_namespace].each do |namespace|
+        [opts.namespace, @instance_class.roxml_namespace, @default_namespace].each do |namespace|
           return opts.namespace == '*' ? (what == '*' ? "*" : "*[local-name()='#{what}']") : "#{namespace}:#{what}" if namespace
         end
       end
@@ -102,10 +109,10 @@ module ROXML
 
     def nodes_in(xml)
       @default_namespace = XML.default_namespace(xml)
-      vals = XML.search(xml, xpath, @instance.class.roxml_namespaces)
+      vals = XML.search(xml, xpath, @instance_class.roxml_namespaces)
 
       if several? && vals.empty? && !wrapper && auto_xpath
-        vals = XML.search(xml, auto_xpath, @instance.class.roxml_namespaces)
+        vals = XML.search(xml, auto_xpath, @instance_class.roxml_namespaces)
         @auto_vals = !vals.empty?
       end
 
