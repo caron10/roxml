@@ -5,3 +5,4 @@ doc
 Rake.config
 pkg
 .project
+Gemfile.lock

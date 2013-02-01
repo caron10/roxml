@@ -312,7 +312,11 @@ module ROXML
 
   private
     def fetch_value(xml)
+      # puts "xml ===="
+      # puts xml
       nodes_in(xml) do |node|
+        # puts "node ===="
+        # puts node
         if sought_type.respond_to? :from_xml
           sought_type.from_xml(node)
         else

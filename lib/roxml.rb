@@ -37,6 +37,10 @@ module ROXML # :nodoc:
           ? self.roxml_references \
           : self.class.roxml_attrs.map {|attr| attr.to_ref(self) })
         refs.each do |ref|
+        
+          #Skipping namespace parameters if not specifited
+          next if (params[:include_namespace] != true) && (ref.opts.sought_type == :attr) && (ref.opts.attr_name.scan(/^xmlns/).any?)
+           
           value = ref.to_xml(self)
           unless value.nil?
             ref.update_xml(root, value)
@@ -548,16 +552,32 @@ module ROXML # :nodoc:
         
         attributes = {}
         roxml_references = roxml_attrs.map {|attr| attr.to_ref(self) }
+
+        klass = self #
         roxml_references.each do |ref|
           value = ref.value_in(xml)
+
+          #delete empty attributes
+          next if value.nil? or (value.is_a?(Array) && value.empty?)
+
+          #puts ref.opts.instance_variable_name.to_s.gsub("@","").to_sym
           #puts "value:#{value}"
           attributes[ref.opts.instance_variable_name.to_s.gsub("@","").to_sym] = value
+          
+          #gettings class name         
+          if (ref.opts.sought_type == :attr) && (ref.opts.attr_name == "xsi_type")
+            new_klass = self.get_class_from_type(value)
+            if new_klass != klass
+              return new_klass.from_xml(data, initialization_args)
+            end
+          end
+ 
           # inst.respond_to?(ref.opts.setter) \
             # ? inst.send(ref.opts.setter, value) \
             # : inst.instance_variable_set(ref.opts.instance_variable_name, value)
         end
         
-        obj = self.new(attributes)
+        obj = klass.new(attributes)
         
 
         # new(*initialization_args).tap do |inst|
