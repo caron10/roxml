@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
     ".gitmodules",
     ".rspec",
     "Gemfile",
-    "Gemfile.lock",
+    #"Gemfile.lock",
     "History.txt",
     "LICENSE",
     "README.rdoc",
