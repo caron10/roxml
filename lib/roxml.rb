@@ -522,7 +522,7 @@ module ROXML # :nodoc:
       # and composed XML objects
       def roxml_attrs
         @roxml_attrs ||= []
-        (@roxml_attrs + (superclass.respond_to?(:roxml_attrs) ? superclass.roxml_attrs : [])).freeze
+        ((superclass.respond_to?(:roxml_attrs) ? superclass.roxml_attrs : []) + @roxml_attrs).freeze
       end
     end
 
