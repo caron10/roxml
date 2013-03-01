@@ -449,9 +449,12 @@ module ROXML # :nodoc:
         opts = syms.extract_options!
         syms.map do |sym|
           Definition.new(sym, opts, &block).tap do |attr|
-            if roxml_attrs.map(&:accessor).include? attr.accessor
+            if !@roxml_attrs.nil? && (@roxml_attrs.map(&:accessor).include? attr.accessor)
+              idx = @roxml_attrs.rindex{|exist_attr| exist_attr.accessor == attr.accessor}
+              @roxml_attrs[idx] = attr
               #raise "Accessor #{attr.accessor} is already defined as XML accessor in class #{self.name}"
             else
+              @roxml_attrs ||= []
               @roxml_attrs << attr
             end
           end
@@ -522,7 +525,17 @@ module ROXML # :nodoc:
       # and composed XML objects
       def roxml_attrs
         @roxml_attrs ||= []
-        ((superclass.respond_to?(:roxml_attrs) ? superclass.roxml_attrs : []) + @roxml_attrs).freeze
+        #((superclass.respond_to?(:roxml_attrs) ? superclass.roxml_attrs : []) + @roxml_attrs).freeze
+        result = (superclass.respond_to?(:roxml_attrs) ? superclass.roxml_attrs.dup : [])
+        @roxml_attrs.each do |attr|
+          idx = result.rindex{|exist_attr| exist_attr.accessor == attr.accessor}
+          if idx.nil?
+            result << attr
+          else
+            result[idx] = attr if !idx.nil?
+          end
+        end
+        result.freeze
       end
     end
 
