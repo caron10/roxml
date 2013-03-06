@@ -559,11 +559,19 @@ module ROXML # :nodoc:
       #
       # See also: xml_initialize
       #
+      
+      #initialization_args additional attributes {:attr => :value}
+      
       def from_xml(data, *initialization_args)
         xml = XML::Node.from(data)
         #puts "step 1."
         
         attributes = {}
+                
+        initialization_args.flatten.each do |attr|
+          attributes = attributes.merge(attr)
+        end
+        
         roxml_references = roxml_attrs.map {|attr| attr.to_ref(self) }
 
         klass = self #
