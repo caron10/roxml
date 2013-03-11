@@ -172,7 +172,32 @@ module ROXML
         all(val) do |v|
           fetch_bool(v, v)
         end
+      end,
+      
+      OpenEHR::AssumedLibraryTypes::ISO8601Date => lambda do |val|
+        all(val) do |v|
+          OpenEHR::AssumedLibraryTypes::ISO8601Date.new(v) unless v.blank?
+        end
+      end,
+      
+      OpenEHR::AssumedLibraryTypes::ISO8601Time => lambda do |val|
+        all(val) do |v|
+          OpenEHR::AssumedLibraryTypes::ISO8601Time.new(v) unless v.blank?
+        end
+      end,
+      
+      OpenEHR::AssumedLibraryTypes::ISO8601DateTime => lambda do |val|
+        all(val) do |v|
+          OpenEHR::AssumedLibraryTypes::ISO8601DateTime.new(v) unless v.blank?
+        end
+      end,
+      
+      OpenEHR::AssumedLibraryTypes::ISO8601Duration => lambda do |val|
+        all(val) do |v|
+          OpenEHR::AssumedLibraryTypes::ISO8601Duration.new(v) unless v.blank?
+        end
       end
+      
     }
 
     def self.block_shorthands
