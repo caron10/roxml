@@ -48,7 +48,36 @@ module ROXML # :nodoc:
         end
       end
     end
+    
+=begin    
+    def attr_to_xml(name, params = {})
+      refs = (self.roxml_references.present? \
+          ? self.roxml_references \
+          : self.class.roxml_attrs.map {|attr| attr.to_ref(self) })
+      
+
+      ref = refs.find{|ref| ref.name == name }
+      
+      XML.new_node([nil, "attribute"].compact.join(':')).tap do |root|
+        value = ref.to_xml(self)
+        unless value.nil?
+          ref.update_xml(root, value)
+        end
+      end
+      
+      #refs.each do |ref|
+        #pp ref
+        #Skipping namespace parameters if not specifited
+        #next if (params[:include_namespace] != true) && (ref.opts.sought_type == :attr) && (ref.opts.attr_name.scan(/^xmlns/).any?)
+         
+        #value = ref.to_xml(self)
+        #unless value.nil?
+          #ref.update_xml(root, value)
+        #end
+      #end      
+    end
   end
+=end
 
   # This class defines the annotation methods that are mixed into your
   # Ruby classes for XML mapping information and behavior.
