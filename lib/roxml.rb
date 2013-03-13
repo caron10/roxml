@@ -75,9 +75,10 @@ module ROXML # :nodoc:
           #ref.update_xml(root, value)
         #end
       #end      
-    end
+    end #attr
+=end    
   end
-=end
+
 
   # This class defines the annotation methods that are mixed into your
   # Ruby classes for XML mapping information and behavior.
