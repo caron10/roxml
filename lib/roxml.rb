@@ -628,6 +628,8 @@ module ROXML # :nodoc:
             # : inst.instance_variable_set(ref.opts.instance_variable_name, value)
         end
         
+        #prepare attributes before send to initializer
+        attributes = klass.send(:before_parse, attributes) if klass.respond_to?(:before_parse, false)
         obj = klass.new(attributes)
         
 
