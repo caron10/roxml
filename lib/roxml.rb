@@ -629,8 +629,10 @@ module ROXML # :nodoc:
         end
         
         #prepare attributes before send to initializer
-        attributes = klass.send(:before_parse, attributes) if klass.respond_to?(:before_parse, false)
+        attributes = klass.send(:before_parse, attributes) if klass.respond_to?(:before_parse, true)
         obj = klass.new(attributes)
+        obj.send(:after_parse) if obj.respond_to?(:after_parse, true)
+        return obj
         
 
         # new(*initialization_args).tap do |inst|
