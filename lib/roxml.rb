@@ -632,23 +632,8 @@ module ROXML # :nodoc:
         attributes = klass.send(:before_parse, attributes) if klass.respond_to?(:before_parse, true)
         obj = klass.new(attributes)
         obj.send(:after_parse) if obj.respond_to?(:after_parse, true)
-
-        #FIX:
-        #Setting Pathable parent attribute
-        if defined? OpenEHR::RM::Common::Archetyped::Pathable
-          attributes.each do |key, value|
-            if value.is_a?(OpenEHR::RM::Common::Archetyped::Pathable)
-               value.parent = obj
-            elsif value.is_a?(Array)
-              value.each do |element|
-                if element.is_a?(OpenEHR::RM::Common::Archetyped::Pathable)
-                  element.parent = obj
-                end
-              end
-            end
-          end
-        end
         return obj
+
 
         # new(*initialization_args).tap do |inst|
           # inst.roxml_references = roxml_attrs.map {|attr| attr.to_ref(inst) }
